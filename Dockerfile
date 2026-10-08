@@ -1,13 +1,24 @@
-FROM node:24-alpine
+FROM node:24-alpine AS build
 
-COPY . /usr/src
+WORKDIR /app
 
-WORKDIR /usr/src
-
-RUN npm install
-
+COPY package*.json ./
 RUN npm ci
 
+COPY . .
 RUN npm run build
 
-ENTRYPOINT ["/bin/sh", "-c" , "npm start"]
+FROM node:24-alpine AS production
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=build /app/dist ./dist
+
+EXPOSE 8080
+
+CMD ["node", "dist/index.js"]
