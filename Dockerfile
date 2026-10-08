@@ -4,8 +4,6 @@ COPY . /usr/src
 
 WORKDIR /usr/src
 
-RUN npm install
-
 RUN npm ci
 
 RUN npm run build
